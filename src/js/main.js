@@ -17,12 +17,17 @@ const VIDEO_CONFIG = {
 const kvSection = document.querySelector('.showroomfinder-kv-section');
 const kvContent = document.querySelector('.showroomfinder-kv-content');
 const title = document.querySelector('.showroomfinder-title');
-const videoContainer = document.querySelector('.showroomfinder-video-container');
+const kvVideoContainer = document.querySelector('.showroomfinder-kv-video-container');
 const mainVideo = document.getElementById('showroomfinder-mainVideo');
 const scrollIndicator = document.querySelector('.showroomfinder-scroll-indicator');
 const navButtons = document.querySelectorAll('.showroomfinder-nav-btn');
 const sections = document.querySelectorAll('.showroomfinder-content-section');
 const topButton = document.getElementById('showroomfinder-topButton');
+
+// Section3 비디오 관련 요소들
+const section3Content = document.querySelector('#section3 .showroomfinder-section-content');
+const section3Video = document.getElementById('showroomfinder-section3Video');
+const playButton = document.querySelector('.showroomfinder-play-button');
 
 // 비디오 초기화 함수
 function showroomfinderInitVideo() {
@@ -41,7 +46,7 @@ function showroomfinderInitVideo() {
   
   // 비디오 에러 처리
   mainVideo.addEventListener('error', (e) => {
-    videoContainer.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    kvVideoContainer.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
   });
 }
 
@@ -182,6 +187,99 @@ function showroomfinderInitAccordion() {
   });
 }
 
+// Section3 비디오 인터랙션 기능
+function showroomfinderInitSection3Video() {
+  if (!section3Video || !section3Content || !playButton) return;
+
+  // 비디오 초기화
+  section3Video.muted = true;
+  section3Video.loop = true;
+  section3Video.playsInline = true;
+  section3Video.autoplay = true;
+
+  // 비디오 영역 클릭 이벤트 (전체 영역에서 동작)
+  const videoWrapper = document.querySelector('#section3 .showroomfinder-view-video-wrapper');
+  if (videoWrapper) {
+    videoWrapper.addEventListener('click', function(e) {
+      // 재생 버튼 클릭이 아닌 경우에만 동작
+      if (!playButton.contains(e.target)) {
+        // 음소거 토글
+        section3Video.muted = !section3Video.muted;
+        
+        // 음소거 해제된 경우 스크롤 이동
+        if (!section3Video.muted) {
+          // Section4의 offsetTop에서 100vh를 뺀 위치로 스크롤 이동
+          const section4 = document.getElementById('section4');
+          const targetScrollPosition = section4.offsetTop - window.innerHeight;
+          
+          window.scrollTo({
+            top: targetScrollPosition,
+            behavior: 'smooth'
+          });
+        }
+        
+        // 음소거 상태에 따른 시각적 피드백
+        if (section3Video.muted) {
+          console.log('음소거됨');
+        } else {
+          console.log('음소거 해제됨 + 스크롤 이동');
+        }
+      }
+    });
+  }
+
+  // 재생 버튼 클릭 이벤트
+  playButton.addEventListener('click', function() {
+    // 음소거 해제
+    section3Video.muted = false;
+    
+    // Section4의 offsetTop에서 100vh를 뺀 위치로 스크롤 이동
+    const section4 = document.getElementById('section4');
+    const targetScrollPosition = section4.offsetTop - window.innerHeight;
+    
+    window.scrollTo({
+      top: targetScrollPosition,
+      behavior: 'smooth'
+    });
+  });
+
+  // 키보드 M키로 음소거 토글
+  document.addEventListener('keydown', function(e) {
+    // Section3가 화면에 보일 때만 작동
+    const section3 = document.getElementById('section3');
+    const rect = section3.getBoundingClientRect();
+    
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      if (e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        section3Video.muted = !section3Video.muted;
+        
+        // 음소거 상태에 따른 시각적 피드백
+        if (section3Video.muted) {
+          console.log('음소거됨 (M키)');
+        } else {
+          console.log('음소거 해제됨 (M키)');
+        }
+      }
+    }
+  });
+}
+
+
+
+// 반응형 초기값 계산 함수
+function getResponsiveInitialValues() {
+  const isMobile = window.innerWidth <= 767;
+  return {
+    width: isMobile ? 320 : 700,
+    height: isMobile ? 200 : 400,
+    widthPx: isMobile ? '320px' : '700px',
+    heightPx: isMobile ? '200px' : '400px'
+  };
+}
+
+/* 비디오 확장/축소는 스크롤 기반 애니메이션으로 처리 */
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
   // 비디오 초기화
@@ -198,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 아코디언 초기화
   showroomfinderInitAccordion();
+  
+  // Section3 비디오 인터랙션 초기화
+  showroomfinderInitSection3Video();
   
   // 타이틀 애니메이션
   gsap.to(title, {
@@ -226,7 +327,7 @@ function showroomfinderInitScrollAnimations() {
       const clipValue = 50 - (clipProgress * 50);
       const clipPath = `inset(${clipValue}% 0 ${clipValue}% 0)`;
       
-      videoContainer.style.clipPath = clipPath;
+      kvVideoContainer.style.clipPath = clipPath;
       
       // KV 콘텐츠는 화면 중앙부터 위아래로 clip되어 사라짐
       // polygon을 사용하여 중앙에서 시작해서 위아래로 clip
@@ -241,6 +342,67 @@ function showroomfinderInitScrollAnimations() {
       showroomfinderControlScrollIndicator(progress);
     }
   });
+
+  // Section3 비디오 스크롤 애니메이션
+  if (section3Content) {
+    ScrollTrigger.create({
+      trigger: document.getElementById('section3'),
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate: function(self) {
+        const progress = self.progress;
+        
+        // 스크롤 진행도에 따른 비디오 영역 확장
+        if (progress > 0) {
+          // 반응형에 따른 초기값 설정
+          const initialValues = getResponsiveInitialValues();
+          const initialWidth = initialValues.width;
+          const initialHeight = initialValues.height;
+          
+          // 너비 확장 (초기값 -> 100vw)
+          const widthProgress = Math.min(progress, 1);
+          const widthValue = initialWidth + (widthProgress * (window.innerWidth - initialWidth));
+          
+          // 높이 확장 (초기값 -> 100vh)
+          const heightProgress = Math.min(progress, 2);
+          const heightValue = initialHeight + (heightProgress * (window.innerHeight - initialHeight));
+          
+          // 스타일 적용
+          section3Content.style.width = `${widthValue}px`;
+          section3Content.style.height = `${heightValue}px`;
+          
+          // 비디오가 완전히 확장된 후 sticky 위치 조정
+          if (progress > 0.8) {
+            const stickyProgress = (progress - 0.8) / 0.2; // 0.8~1.0 구간을 0~1로 변환
+            const topValue = 50 - (stickyProgress * 50); // 50% -> 0%로 이동
+            section3Content.style.top = `${topValue}%`;
+            section3Content.style.transform = `translateY(-${topValue}%)`;
+          } else {
+            section3Content.style.top = '50%';
+            section3Content.style.transform = 'translateY(-50%)';
+          }
+          
+          // 재생 버튼 투명도 조절
+          const buttonOpacity = Math.max(0, 1 - (progress * 1.5));
+          playButton.style.opacity = buttonOpacity;
+          playButton.style.pointerEvents = progress > 0.7 ? 'none' : 'auto';
+        } else {
+          // 초기 상태로 복원 (반응형에 맞게)
+          const initialValues = getResponsiveInitialValues();
+          const initialWidth = initialValues.widthPx;
+          const initialHeight = initialValues.heightPx;
+          
+          section3Content.style.width = initialWidth;
+          section3Content.style.height = initialHeight;
+          section3Content.style.top = '50%';
+          section3Content.style.transform = 'translateY(-50%)';
+          playButton.style.opacity = '1';
+          playButton.style.pointerEvents = 'auto';
+        }
+      }
+    });
+  }
 
   // 각 섹션별 페이드인 애니메이션
 //   sections.forEach((section, index) => {

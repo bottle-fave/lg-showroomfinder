@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LG Living Showroom</title>
-  <link rel="stylesheet" href="./src/css/style.css">
+  <link rel="stylesheet" href="./src/css/style.scss">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 </head>
 <body>
@@ -27,7 +27,7 @@
     </div>
     
     <!-- 비디오 컨테이너 -->
-    <div class="showroomfinder-video-container">
+    <div class="showroomfinder-kv-video-container">
       <video id="showroomfinder-mainVideo" muted loop poster="https://via.placeholder.com/1920x1080/000000/ffffff?text=Video+Thumbnail">
         <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
       </video>
@@ -207,21 +207,31 @@
     </div>
   </section>
 
-  <!-- 섹션 3 -->
+  <!-- 섹션 3 - VIEW -->
   <section id="section3" class="showroomfinder-content-section">
+    <!-- 콘텐츠 영역 -->
     <div class="showroomfinder-content-wrapper">
       <div class="showroomfinder-title-box">
         <h2>VIEW</h2>
         <h3>Title 1 Line</h3>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.</p>
       </div>
+      
       <div class="showroomfinder-section-content">
-        <div class="showroomfinder-content-item">
-          <h3>제목 5</h3>
-          <p>내용 5</p>
-        </div>
-        <div class="showroomfinder-content-item">
-          <h3>제목 6</h3>
-          <p>내용 6</p>
+        <!-- 비디오 sticky 영역 -->
+          <div class="showroomfinder-view-video-wrapper">
+            <video id="showroomfinder-section3Video" muted loop autoplay playsinline>
+              <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+            </video>
+            
+                         <!-- 재생 버튼 -->
+             <div class="showroomfinder-play-button">
+               <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <circle cx="30" cy="30" r="30" fill="rgba(255, 255, 255, 0.9)"/>
+                 <path d="M25 20L40 30L25 40V20Z" fill="#000"/>
+               </svg>
+             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -274,6 +284,8 @@
     <span class="showroomfinder-top-arrow">↑</span>
     <span class="showroomfinder-top-text">TOP</span>
   </button>
+
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
