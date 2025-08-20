@@ -125,10 +125,10 @@ function showroomfinderInitSwiper() {
     spaceBetween: 20,
     centeredSlides: true,
     loop: false,
-    // autoplay: {
-    //   delay: 5000,
-    //   disableOnInteraction: false,
-    // },
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
     pagination: {
       el: '.swiper-pagination',
       clickable: true,

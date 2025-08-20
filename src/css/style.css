@@ -118,26 +118,26 @@ body {
 /* 스크롤 인디케이터 */
 .showroomfinder-scroll-indicator {
   position: absolute;
-  top: 40%;
+  top: 45%;
   left: 50%;
-  transform: translate(-50%,-100%);
+  transform: translate(-50%,-50%);
   text-align: center;
-  color: white;
+  color: #fff;
   transition: opacity 0.5s ease;
   z-index: 1001;
 }
 
 .showroomfinder-scroll-text {
   display: block;
-  font-size: 1.2rem;
+  font-size: 12px;
   margin-bottom: 1rem;
   letter-spacing: 1px;
 }
 
 .showroomfinder-scroll-arrow {
   width: 2px;
-  height: 30px;
-  background-color: white;
+  height: 50px;
+  background-color: #fff;
   margin: 0 auto;
   position: relative;
   animation: scrollBounce 2s infinite;
@@ -152,7 +152,7 @@ body {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 8px solid white;
+  border-top: 8px solid #fff;
 }
 
 @keyframes scrollBounce {
@@ -173,6 +173,9 @@ body {
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.2);
+  border:1px solid #000;
+  border-left:none;
+  border-right:none;
 }
 
 .showroomfinder-nav-btn {
@@ -183,6 +186,15 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  border-left:1px solid #000;
+}
+.showroomfinder-nav-btn:first-child {
+  border-left:none;
+}
+.showroomfinder-nav-btn:hover,
+.showroomfinder-nav-btn:focus {
+  background-color: #000;
+  color:#fff;
 }
 
 
@@ -215,6 +227,86 @@ body {
 
 .showroomfinder-title-box h3 {
   font-size: 40px;
+}
+
+.showroomfinder-frame-wrap {
+  position: relative;
+  padding: 50px;
+  border: none;
+}
+
+/* 프레임 보더 UI - 카메라 앵글 효과 */
+/* 왼쪽상단 모서리 */
+.showroomfinder-frame-wrap .frame-corner-top-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border-left: 2px solid rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+/* 오른쪽상단 모서리 */
+.showroomfinder-frame-wrap .frame-corner-top-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border-right: 2px solid rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+/* 왼쪽하단 모서리 */
+.showroomfinder-frame-wrap .frame-corner-bottom-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  border-left: 2px solid rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+/* 오른쪽하단 모서리 */
+.showroomfinder-frame-wrap .frame-corner-bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  border-right: 2px solid rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+/* 프레임 모서리 호버 효과 */
+.showroomfinder-frame-wrap:hover .frame-corner-top-left,
+.showroomfinder-frame-wrap:hover .frame-corner-top-right,
+.showroomfinder-frame-wrap:hover .frame-corner-bottom-left,
+.showroomfinder-frame-wrap:hover .frame-corner-bottom-right {
+  border-color: rgba(255, 255, 255, 1);
+  transition: border-color 0.3s ease;
+}
+
+/* 반응형 프레임 크기 조정 */
+@media (max-width: 768px) {
+  .showroomfinder-frame-wrap {
+    padding: 20px;
+  }
+  
+  .showroomfinder-frame-wrap .frame-corner-top-left,
+  .showroomfinder-frame-wrap .frame-corner-top-right,
+  .showroomfinder-frame-wrap .frame-corner-bottom-left,
+  .showroomfinder-frame-wrap .frame-corner-bottom-right {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
 }
 
 /* 섹션별 배경색 */
@@ -480,6 +572,10 @@ body {
 }
 
 /* Swiper 슬라이드 스타일 */
+.showroomfinder-slide-section {
+  padding-top:30px;
+}
+
 .swiper-container {
   width: 100%;
   max-width: 1200px;
