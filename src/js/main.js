@@ -345,10 +345,25 @@ function showroomfinderInitScrollAnimations() {
 
   // Section3 비디오 스크롤 애니메이션
   if (section3Content) {
-    ScrollTrigger.create({
+    // 동적으로 end 값을 계산하는 함수
+    function getSection3EndValue() {
+      const section3 = document.getElementById('section3');
+      if (!section3) return 'bottom bottom';
+      
+      const section3Height = section3.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      
+      // 확장 타이밍이 느려졌으므로 더 많은 스크롤 공간 확보
+      const extraSpace = viewportHeight * 1.0; // 뷰포트 높이의 100% 추가
+      
+      return `+=${extraSpace}`;
+    }
+
+    // ScrollTrigger 인스턴스를 변수로 저장하여 나중에 업데이트할 수 있도록 함
+    const section3ScrollTrigger = ScrollTrigger.create({
       trigger: document.getElementById('section3'),
       start: 'top top',
-      end: 'bottom bottom',
+      end: getSection3EndValue(),
       scrub: true,
       onUpdate: function(self) {
         const progress = self.progress;
@@ -360,25 +375,51 @@ function showroomfinderInitScrollAnimations() {
           const initialWidth = initialValues.width;
           const initialHeight = initialValues.height;
           
-          // 너비 확장 (초기값 -> 100vw)
-          const widthProgress = Math.min(progress, 1);
+          // Easing 함수로 부드러운 애니메이션 (더 느리게)
+          const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+          const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3); // 더 부드러운 easing
+          
+          // 확장 타이밍을 더 느리게 (0.925 -> 0.95)
+          const expansionEndPoint = 0.95;
+          
+          // 너비 확장 (초기값 -> 100vw) - 0~0.95 구간에서 완료 (더 느리게)
+          const widthProgress = easeOutCubic(Math.min(progress / expansionEndPoint, 1));
           const widthValue = initialWidth + (widthProgress * (window.innerWidth - initialWidth));
           
-          // 높이 확장 (초기값 -> 100vh)
-          const heightProgress = Math.min(progress, 2);
+          // 높이 확장 (초기값 -> 100vh) - 0~0.95 구간에서 완료 (더 느리게)
+          const heightProgress = easeOutCubic(Math.min(progress / expansionEndPoint, 1));
           const heightValue = initialHeight + (heightProgress * (window.innerHeight - initialHeight));
           
           // 스타일 적용
           section3Content.style.width = `${widthValue}px`;
           section3Content.style.height = `${heightValue}px`;
           
-          // 비디오가 완전히 확장된 후 sticky 위치 조정
-          if (progress > 0.8) {
-            const stickyProgress = (progress - 0.8) / 0.2; // 0.8~1.0 구간을 0~1로 변환
-            const topValue = 50 - (stickyProgress * 50); // 50% -> 0%로 이동
-            section3Content.style.top = `${topValue}%`;
-            section3Content.style.transform = `translateY(-${topValue}%)`;
+          // 비디오 영역을 항상 화면 중앙에 고정
+          section3Content.style.top = '50%';
+          section3Content.style.transform = 'translateY(-50%)';
+          
+          // 비디오 확장이 완료되면 상단으로 이동
+          if (progress >= expansionEndPoint) {
+            // 확장 완료 후 바로 상단으로 고정
+            section3Content.style.top = '0%';
+            section3Content.style.transform = 'translateY(0%)';
           } else {
+            // 확장 중에는 중앙에 고정
+            section3Content.style.top = '50%';
+            section3Content.style.transform = 'translateY(-50%)';
+          }
+          
+          // 모바일에서는 확장 완료 후 위치 고정을 더 확실하게
+          if (window.innerWidth <= 767 && progress >= expansionEndPoint) {
+            // 모바일에서는 확장 완료 시점에 한 번만 설정
+            if (!section3Content.dataset.expanded) {
+              section3Content.dataset.expanded = 'true';
+              section3Content.style.top = '0%';
+              section3Content.style.transform = 'translateY(0%)';
+            }
+          } else if (window.innerWidth <= 767 && progress < expansionEndPoint) {
+            // 모바일에서 확장 중일 때는 중앙 고정
+            section3Content.dataset.expanded = 'false';
             section3Content.style.top = '50%';
             section3Content.style.transform = 'translateY(-50%)';
           }
@@ -402,6 +443,136 @@ function showroomfinderInitScrollAnimations() {
         }
       }
     });
+
+    // 리사이즈 시 ScrollTrigger 업데이트를 위한 함수
+    function updateSection3ScrollTrigger() {
+      if (section3ScrollTrigger) {
+        // 현재 진행도 저장
+        const currentProgress = section3ScrollTrigger.progress;
+        
+        // 모바일 상태 초기화
+        if (section3Content) {
+          section3Content.dataset.expanded = 'false';
+          
+          // 인라인 스타일 초기화 (반응형 대응)
+          section3Content.style.width = '';
+          section3Content.style.height = '';
+          section3Content.style.top = '';
+          section3Content.style.transform = '';
+        }
+        
+        // ScrollTrigger의 end 값을 업데이트
+        section3ScrollTrigger.vars.end = getSection3EndValue();
+        
+        // ScrollTrigger 새로고침
+        section3ScrollTrigger.refresh();
+        
+        // 현재 진행도에 맞게 스타일 다시 적용
+        if (currentProgress > 0) {
+          setTimeout(() => {
+            // 반응형에 따른 초기값 설정
+            const initialValues = getResponsiveInitialValues();
+            const initialWidth = initialValues.width;
+            const initialHeight = initialValues.height;
+            
+            // Easing 함수
+            const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+            const expansionEndPoint = 0.95;
+            
+            // 현재 진행도에 맞는 크기 계산
+            const widthProgress = easeOutCubic(Math.min(currentProgress / expansionEndPoint, 1));
+            const heightProgress = easeOutCubic(Math.min(currentProgress / expansionEndPoint, 1));
+            
+            const widthValue = initialWidth + (widthProgress * (window.innerWidth - initialWidth));
+            const heightValue = initialHeight + (heightProgress * (window.innerHeight - initialHeight));
+            
+            // 스타일 적용
+            section3Content.style.width = `${widthValue}px`;
+            section3Content.style.height = `${heightValue}px`;
+            
+            // 위치 설정
+            if (currentProgress >= expansionEndPoint) {
+              section3Content.style.top = '0%';
+              section3Content.style.transform = 'translateY(0%)';
+            } else {
+              section3Content.style.top = '50%';
+              section3Content.style.transform = 'translateY(-50%)';
+            }
+          }, 100);
+        }
+        
+        // Section3가 화면에 보이는 상태라면 스크롤 위치 조정
+        setTimeout(() => {
+          const section3 = document.getElementById('section3');
+          if (section3) {
+            const rect = section3.getBoundingClientRect();
+            const isSectionVisible = rect.top < window.innerHeight && rect.bottom > 0;
+            
+            if (isSectionVisible && currentProgress > 0) {
+              // 현재 진행도에 맞는 스크롤 위치로 조정
+              const section3Top = section3.offsetTop;
+              const section3Height = section3.offsetHeight;
+              const viewportHeight = window.innerHeight;
+              
+              // 진행도에 따른 스크롤 위치 계산
+              const targetScrollY = section3Top + (section3Height - viewportHeight) * currentProgress;
+              window.scrollTo(0, targetScrollY);
+            }
+          }
+        }, 150);
+      }
+    }
+
+    // 반응형 변경 시 즉시 적용하는 함수
+    function applyResponsiveStyles() {
+      if (section3Content) {
+        const initialValues = getResponsiveInitialValues();
+        
+        // 현재 스크롤 진행도 확인
+        const section3 = document.getElementById('section3');
+        if (section3) {
+          const rect = section3.getBoundingClientRect();
+          const isSectionVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          
+          if (isSectionVisible) {
+            // Section3가 보이는 상태라면 현재 진행도에 맞게 스타일 적용
+            const scrollY = window.scrollY;
+            const section3Top = section3.offsetTop;
+            const section3Height = section3.offsetHeight;
+            const viewportHeight = window.innerHeight;
+            
+            // 대략적인 진행도 계산
+            const estimatedProgress = Math.max(0, Math.min(1, (scrollY - section3Top) / (section3Height - viewportHeight)));
+            
+            if (estimatedProgress > 0) {
+              const expansionEndPoint = 0.95;
+              const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+              
+              const widthProgress = easeOutCubic(Math.min(estimatedProgress / expansionEndPoint, 1));
+              const heightProgress = easeOutCubic(Math.min(estimatedProgress / expansionEndPoint, 1));
+              
+              const widthValue = initialValues.width + (widthProgress * (window.innerWidth - initialValues.width));
+              const heightValue = initialValues.height + (heightProgress * (window.innerHeight - initialValues.height));
+              
+              section3Content.style.width = `${widthValue}px`;
+              section3Content.style.height = `${heightValue}px`;
+              
+              if (estimatedProgress >= expansionEndPoint) {
+                section3Content.style.top = '0%';
+                section3Content.style.transform = 'translateY(0%)';
+              } else {
+                section3Content.style.top = '50%';
+                section3Content.style.transform = 'translateY(-50%)';
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // updateSection3ScrollTrigger 함수를 전역에서 접근할 수 있도록 설정
+    window.updateSection3ScrollTrigger = updateSection3ScrollTrigger;
+    window.applyResponsiveStyles = applyResponsiveStyles;
   }
 
   // 각 섹션별 페이드인 애니메이션
@@ -469,9 +640,25 @@ if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
   });
 }
 
-// 윈도우 리사이즈 시 ScrollTrigger 새로고침
+// 윈도우 리사이즈 시 ScrollTrigger 새로고침 (통합)
+let resizeTimeout;
 window.addEventListener('resize', function() {
+  // 기본 ScrollTrigger 새로고침
   ScrollTrigger.refresh();
+  
+  // 즉시 반응형 스타일 적용
+  if (typeof applyResponsiveStyles === 'function') {
+    applyResponsiveStyles();
+  }
+  
+  // 디바운싱을 위한 타임아웃
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // Section3 전용 업데이트 (이미 등록된 경우에만)
+    if (typeof updateSection3ScrollTrigger === 'function') {
+      updateSection3ScrollTrigger();
+    }
+  }, 250);
 });
 
 // 스크롤 애니메이션 초기화

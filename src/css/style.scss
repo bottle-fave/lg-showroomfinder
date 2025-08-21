@@ -221,11 +221,12 @@ body {
   &:first-child {
     border-left: none;
   }
-  
-  &:hover,
-  &:focus {
-    background-color: $black;
-    color: $white;
+  @include d {
+    &:hover,
+    &:focus {
+      background-color: $black;
+      color: $white;
+    }
   }
 }
 
@@ -333,17 +334,19 @@ body {
 }
 
 #section3 {
-  padding-bottom: 0;
+  padding: 0;
   
   .showroomfinder-content-wrapper {
     height: 300vh;
     position: relative;
     overflow: visible;
+    padding-top:100px;
   }
   
   .showroomfinder-content-wrapper .showroomfinder-title-box {
     position: sticky;
     top: 100px;
+
   }
   
   .showroomfinder-content-wrapper .showroomfinder-section-content {
@@ -360,7 +363,7 @@ body {
     @include m {
       width: 320px;
       height: 200px;
-      margin: 200px auto 0;
+      margin: 150px auto 0;
     }
   }
   
